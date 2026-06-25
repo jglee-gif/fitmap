@@ -10,7 +10,7 @@ async def analyze(file: UploadFile):
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.py"
+      "destination": "/api"
     },
     {
       "source": "/(.*)",
