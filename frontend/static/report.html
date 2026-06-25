@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fit Map — 진단 리포트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f5f3ee;--bg2:#ede9e0;--bg3:#e0dbd0;
+    --ink:#1a1814;--ink2:#4a4540;--ink3:#9a9188;
+    --accent:#2d5a3d;--accent-l:#e8f0ea;
+    --warn:#8b3a2a;--warn-l:#f5ebe8;
+    --amber:#7a5a1a;--amber-l:#faf3e0;
+    --border:rgba(26,24,20,.1);--r:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+  header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 2.5rem;height:60px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:700}
+  .back-btn{font-size:13px;color:var(--ink3);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'Pretendard',sans-serif}
+  .back-btn:hover{color:var(--ink)}
+
+  .wrap{max-width:960px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+  /* 회사 헤더 */
+  .co-header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+  .co-name{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:700}
+  .co-meta{font-size:13px;color:var(--ink3);margin-top:4px}
+
+  /* 탭 */
+  .tab-row{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+  .tab{font-size:13px;font-weight:500;padding:10px 18px;cursor:pointer;color:var(--ink3);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:'Pretendard',sans-serif;transition:color .15s}
+  .tab.active{color:var(--ink);border-bottom-color:var(--ink)}
+  .tab-panel{display:none}.tab-panel.active{display:block}
+
+  /* 공통 섹션 레이블 */
+  .sl{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--ink3);text-transform:uppercase;margin-bottom:10px}
+
+  /* 핵심 지표 */
+  .mg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+  .mc{background:white;border-radius:var(--r);padding:14px 16px;border:1px solid var(--border)}
+  .ml{font-size:11px;color:var(--ink3);margin-bottom:5px}.mv{font-size:22px;font-weight:600}
+  .ms{font-size:11px;color:var(--ink3);margin-top:2px}.mch{font-size:12px;margin-top:4px;font-weight:500}
+  .up{color:var(--accent)}.dn{color:var(--warn)}
+
+  /* 차트 */
+  .cw{background:white;border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+  .ct{font-size:14px;font-weight:600;margin-bottom:3px}.cs{font-size:12px;color:var(--ink3);margin-bottom:12px}
+  .leg{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+  .li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink3)}
+  .ld{width:10px;height:10px;border-radius:2px}
+
+  /* MPES 테이블 */
+  .mt{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+  .mt th{font-size:12px;font-weight:600;color:var(--ink3);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg)}
+  .mt td{font-size:13px;padding:10px 12px;border-bottom:1px solid var(--bg2);color:var(--ink)}
+  .gr{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:700}
+  .gA{background:var(--accent-l);color:var(--accent)}.gB{background:var(--amber-l);color:var(--amber)}.gC{background:var(--warn-l);color:var(--warn)}
+  .ob{display:inline-flex;gap:3px;font-size:16px;font-weight:700;letter-spacing:2px}
+
+  /* 트리거 */
+  .tg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+  .tc{border-radius:12px;padding:14px 16px;border:1px solid}
+  .tw{background:var(--warn-l);border-color:#d9a09a}.tok{background:var(--accent-l);border-color:#a0c4aa}.ti{background:var(--amber-l);border-color:#d4b87a}
+  .tt{font-size:13px;font-weight:600;margin-bottom:4px}
+  .tw .tt{color:var(--warn)}.tok .tt{color:var(--accent)}.ti .tt{color:var(--amber)}
+  .td2{font-size:12px;line-height:1.6}
+  .tw .td2{color:var(--warn)}.tok .td2{color:var(--accent)}.ti .td2{color:var(--amber)}
+
+  /* 프로그램 */
+  .pl{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+  .pi{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:white;border:1px solid var(--border);border-radius:var(--r)}
+  .pr2{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+  .p1{background:var(--ink);color:white}.p2{background:var(--ink2);color:white}.p3{background:var(--bg3);color:var(--ink2)}
+  .pb2{flex:1}.pn{font-size:13px;font-weight:600}.prs{font-size:12px;color:var(--ink3);margin-top:2px;line-height:1.5}
+
+  /* 그로스파트너스 */
+  .gp-header{background:white;border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+  .gp-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--ink);color:white}
+  .gp-title{font-size:15px;font-weight:600}
+  .gp-tab-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+  .gp-tab{font-size:12px;font-weight:500;padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:white;cursor:pointer;color:var(--ink3);font-family:'Pretendard',sans-serif;transition:all .15s}
+  .gp-tab.active{background:var(--ink);color:white;border-color:var(--ink)}
+  .gp-panel{display:none}.gp-panel.active{display:block}
+  .gp-reason{font-size:12px;color:var(--ink2);background:var(--bg);border-radius:8px;padding:10px 14px;margin-bottom:12px;line-height:1.65}
+  .mentor-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+  .mentor-card{display:flex;align-items:center;gap:12px;padding:10px 14px;background:white;border:1px solid var(--border);border-radius:var(--r)}
+  .mc-rank{width:22px;height:22px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--ink3);flex-shrink:0}
+  .mc-body{flex:1}
+  .mc-name{font-size:13px;font-weight:600;margin-bottom:2px}
+  .mc-title{font-size:11px;font-weight:400;color:var(--ink3)}
+  .mc-org{font-size:11px;color:var(--ink3);margin-bottom:4px}
+  .mc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px}
+  .mt2{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--bg);color:var(--ink2)}
+  .country-tags{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0}
+  .country-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:#e8f0ea;color:var(--accent);border:1px solid #b8d4be}
+  .mc-expertise{font-size:11px;color:var(--ink2);background:var(--bg);border-radius:5px;padding:4px 8px;margin-top:4px}
+  .mc-match{font-size:11px;color:var(--accent);background:var(--accent-l);border-radius:5px;padding:4px 8px;margin-top:3px}
+  .mc-years{font-size:11px;color:var(--ink3);white-space:nowrap;flex-shrink:0}
+
+  /* 사업개발 */
+  .sc{background:white;border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+  .sg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .si{background:var(--bg);border-radius:var(--r);padding:12px 14px}
+  .sil{font-size:11px;color:var(--ink3);margin-bottom:6px;font-weight:600}
+  .sic{font-size:12px;color:var(--ink);line-height:1.7}
+  .sic li{list-style:none;margin-bottom:2px}
+  .sic li::before{content:"· ";color:var(--ink3)}
+  .sr2{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .sp{font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid}
+  .p-do{background:#e8f4fd;color:#1a6496;border-color:#a8d1f0}
+  .p-pl{background:var(--amber-l);color:var(--amber);border-color:#d4b87a}
+  .p-is{background:var(--warn-l);color:var(--warn);border-color:#d9a09a}
+  .p-dn{background:var(--accent-l);color:var(--accent);border-color:#a0c4aa}
+
+  /* 액션 아이템 */
+  .action-box{background:var(--bg2);border-radius:12px;padding:1.5rem}
+  .action-item{display:flex;align-items:flex-start;gap:.75rem;font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:.6rem}
+  .action-num{width:20px;height:20px;border-radius:50%;background:var(--ink);color:white;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+
+  .dv{height:1px;background:var(--border);margin:1.5rem 0}
+  .note{background:var(--bg);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--ink3);line-height:1.6;margin-top:1rem;border-left:3px solid var(--bg3)}
+  .note strong{color:var(--ink2)}
+
+  @media(max-width:600px){
+    .mg{grid-template-columns:1fr 1fr}
+    .sg{grid-template-columns:1fr}
+    .tg{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Fit Map</div>
+  <button class="back-btn" onclick="history.back()">‹ 목록으로</button>
+</header>
+
+<div class="wrap" id="wrap">
+  <div style="text-align:center;padding:4rem;color:var(--ink3)">데이터를 불러오는 중...</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const d = JSON.parse(sessionStorage.getItem('fitmap_result') || 'null');
+if (!d) { document.getElementById('wrap').innerHTML = '<div style="text-align:center;padding:4rem;color:#8b3a2a">데이터가 없습니다. <a href="/">목록으로 돌아가기</a></div>'; }
+else render(d);
+
+function fmt(n) {
+  if (n == null) return '-';
+  const m = Math.round(n / 10000);
+  if (Math.abs(m) >= 10000) return (m/10000).toFixed(1) + '조';
+  if (Math.abs(m) >= 1000) return (m/1000).toFixed(1) + '억';
+  return m.toLocaleString() + '만';
+}
+function gradeEl(g) {
+  const c = g==='A'?'gA':g==='B'?'gB':'gC';
+  return `<span class="gr ${c}">${g||'-'}</span>`;
+}
+
+function render(d) {
+  const f = d.financials || {};
+  const q = f.quarterly || {};
+  const r25 = q.revenue_2025 || {};
+  const c25 = q.cost_2025 || {};
+  const r26 = q.revenue_2026_plan || {};
+  const c26 = q.cost_2026_plan || {};
+  const totalRev25 = Object.values(r25).reduce((a,b)=>(a||0)+(b||0),0);
+  const totalCost25 = Object.values(c25).reduce((a,b)=>(a||0)+(b||0),0);
+  const totalRev26 = Object.values(r26).reduce((a,b)=>(a||0)+(b||0),0);
+  const gr = totalRev25 ? Math.round((totalRev26-totalRev25)/totalRev25*100) : null;
+  const m = d.mpes || {};
+  const overall = m.overall || '----';
+  const mentors = d.recommended_mentors || {};
+  const topFields = d.growth_partner_fields || [];
+  const biz = d.biz_context || {};
+
+  document.getElementById('wrap').innerHTML = `
+  <div class="co-header">
+    <div>
+      <div class="co-meta">${d.report_date || ''} &nbsp;|&nbsp; 분석일: ${new Date().toLocaleDateString('ko-KR')}</div>
+      <div class="co-name">${d.company || '(기업명)'}</div>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('fin',this)">재무 경향성</button>
+    <button class="tab" onclick="showTab('mpes',this)">MPES 진단</button>
+    <button class="tab" onclick="showTab('prog',this)">밸류업 프로그램</button>
+    <button class="tab" onclick="showTab('biz',this)">사업개발 연계</button>
+  </div>
+
+  <!-- TAB 1: 재무 -->
+  <div id="tab-fin" class="tab-panel active">
+    <div class="sl">핵심 지표</div>
+    <div class="mg">
+      <div class="mc"><div class="ml">현금잔고</div><div class="mv">${fmt(f.cash)}</div></div>
+      <div class="mc"><div class="ml">2025 연매출</div><div class="mv">${fmt(totalRev25)}</div></div>
+      <div class="mc"><div class="ml">2025 연비용</div><div class="mv">${fmt(totalCost25)}</div></div>
+      <div class="mc"><div class="ml">2026 매출목표</div><div class="mv">${fmt(totalRev26)}</div><div class="ms">${gr!=null?`전년 ${gr>0?'+':''}${gr}%`:''}</div></div>
+    </div>
+    <div class="cw">
+      <div class="ct">현금잔고 추이 및 런웨이 예측</div>
+      <div class="cs">실선: 실적 / 점선: 3분기 예측 · 경고선(6개월) / 주의선(12개월) — 순유출 기준</div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:#2d5a3d"></div>실적</div>
+        <div class="li"><div class="ld" style="background:#5a8a4a;opacity:.7"></div>계획 달성 시</div>
+        <div class="li"><div class="ld" style="background:#c47a3a;opacity:.7"></div>현재 추세 시</div>
+        <div class="li"><div class="ld" style="background:#8b3a2a"></div>경고선(6개월)</div>
+        <div class="li"><div class="ld" style="background:#c4862a"></div>주의선(12개월)</div>
+      </div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="cashChart"></canvas></div>
+    </div>
+    <div id="cashComment" class="note"></div>
+    <div class="cw" style="margin-top:1rem">
+      <div class="ct">분기별 매출 vs 비용</div>
+      <div class="cs">단위: 만원</div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:#2d5a3d"></div>매출</div>
+        <div class="li"><div class="ld" style="background:#8b3a2a"></div>비용</div>
+      </div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="revChart"></canvas></div>
+    </div>
+    <div class="sl" style="margin-top:1.5rem">트리거 감지</div>
+    <div class="tg" id="triggerGrid"></div>
+  </div>
+
+  <!-- TAB 2: MPES -->
+  <div id="tab-mpes" class="tab-panel">
+    <div class="sl">MPES 경향성 분석</div>
+    <table class="mt">
+      <thead><tr><th>지표</th><th>등급</th><th>수치</th><th>근거</th></tr></thead>
+      <tbody>
+        ${['liquidity','growth','stability','profitability'].map((k,i) => {
+          const labels = ['유동성 (Runway)','성장성 (매출성장률)','안정성 (자본잠식률)','수익성 (영업이익)'];
+          const item = m[k] || {};
+          return `<tr><td><strong>${labels[i]}</strong></td><td>${gradeEl(item.grade)}</td><td style="font-size:12px;color:var(--ink3)">${item.value||''}</td><td style="font-size:12px;color:var(--ink2)">${item.reason||''}</td></tr>`;
+        }).join('')}
+        <tr style="background:var(--bg)"><td><strong>종합</strong></td>
+          <td colspan="3"><div class="ob">${overall.split('').map(g=>`<span class="${g==='A'?'up':g==='C'?'dn':''}">${g}</span>`).join('')}</div>
+          &nbsp; <span style="font-size:12px;color:var(--ink3)">${m.group||''}</span></td></tr>
+      </tbody>
+    </table>
+    <div style="background:white;border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--ink2);line-height:1.7">${m.summary||''}</div>
+  </div>
+
+  <!-- TAB 3: 밸류업 -->
+  <div id="tab-prog" class="tab-panel">
+    <div class="gp-header">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span class="gp-badge">필수</span>
+        <span class="gp-title">그로스파트너스 멘토 매칭</span>
+      </div>
+      <div style="font-size:12px;color:var(--ink3)">성과 및 계획 기반 ${topFields.length}개 부문 · 각 부문 TOP 5</div>
+    </div>
+    <div class="gp-tab-row" id="gpTabRow"></div>
+    <div id="gpPanels"></div>
+    <div class="dv"></div>
+    <div class="sl">밸류업 프로그램 우선순위</div>
+    <div class="pl" id="progList"></div>
+    <div class="dv"></div>
+    <div class="sl">즉시 실행 액션</div>
+    <div class="action-box" id="actionBox"></div>
+  </div>
+
+  <!-- TAB 4: 사업개발 -->
+  <div id="tab-biz" class="tab-panel">
+    <div class="sl">사업개발 현황</div>
+    <div class="sc">
+      <div style="font-size:15px;font-weight:600;margin-bottom:14px">${d.company||''} — 사업 현황 요약</div>
+      <div class="sr2" id="bizStatus"></div>
+      <div class="sg" id="bizGrid"></div>
+    </div>
+    <div class="note"><strong>사업개발 연계 프로그램</strong>은 그로스브릿지 API 연동 및 기업마당 API 연동 후 자동으로 표시됩니다.</div>
+  </div>
+  `;
+
+  buildCharts(d, f, q, r25, c25, r26, c26);
+  buildTriggers(d, f);
+  buildMentors(topFields, mentors);
+  buildPrograms(d.matched_programs || []);
+  buildActions(d.action_items || []);
+  buildBiz(biz);
+}
+
+function buildCharts(d, f, q, r25, c25, r26, c26) {
+  const cash = f.cash || 0;
+  const burn = f.monthly_burn || 0; // 월 순유출
+  const grossMonthly = 4150 * 10000; // 총비용 기준 (만원→원)
+  const netMonthly = burn || (Math.abs(cash) * 0.023); // fallback
+
+  // 임계선
+  const warn6  = netMonthly * 6;
+  const caution12 = netMonthly * 12;
+
+  // 차트 데이터 — 실적 + 3분기 예측
+  const actualCash = [null,null,null,null,null,null,null,null, cash/10000];
+  const planCash =   [null,null,null,null,null,null,null,null, cash/10000,
+    (cash - netMonthly*3*0.7)/10000, (cash - netMonthly*6*0.7)/10000, (cash - netMonthly*9*0.7)/10000];
+  const trendCash =  [null,null,null,null,null,null,null,null, cash/10000,
+    (cash - netMonthly*3)/10000, (cash - netMonthly*6)/10000, (cash - netMonthly*9)/10000];
+
+  const labels = ['24.1Q','24.2Q','24.3Q','24.4Q','25.1Q','25.2Q','25.3Q','25.4Q','26.1Q','26.2Q','26.3Q','26.4Q'];
+  const tc = 'rgba(26,24,20,0.4)', gc = 'rgba(26,24,20,0.06)';
+
+  new Chart(document.getElementById('cashChart'), {
+    type:'line',
+    data:{ labels,
+      datasets:[
+        {label:'실적',data:actualCash,borderColor:'#2d5a3d',backgroundColor:'rgba(45,90,61,0.07)',borderWidth:2.5,pointRadius:4,fill:true,tension:0.3},
+        {label:'계획',data:planCash,borderColor:'#5a8a4a',borderWidth:2,pointRadius:3,borderDash:[6,3],fill:false,tension:0.3},
+        {label:'추세',data:trendCash,borderColor:'#c47a3a',borderWidth:2,pointRadius:3,borderDash:[3,3],fill:false,tension:0.3},
+        {label:'경고선',data:Array(12).fill(warn6/10000),borderColor:'#8b3a2a',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false},
+        {label:'주의선',data:Array(12).fill(caution12/10000),borderColor:'#c4862a',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw==null?null:ctx.dataset.label+': '+(ctx.raw>=10000?(ctx.raw/10000).toFixed(1)+'억':Math.round(ctx.raw).toLocaleString()+'만')+'원'}}},
+      scales:{x:{ticks:{color:tc,font:{size:10},maxRotation:30},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10},callback:v=>v>=10000?(v/10000).toFixed(0)+'억':Math.round(v)+'만'},grid:{color:gc},min:0}}
+    }
+  });
+
+  // 코멘트
+  const comment = document.getElementById('cashComment');
+  if (netMonthly > 0) {
+    const runwayM = Math.round(cash / netMonthly);
+    comment.innerHTML = `<strong>📌 임계선 기준 안내</strong><br>
+실제 순유출(정부과제·보조금 포함) 기준 월 ${fmt(netMonthly)}원. 경고선 ${fmt(warn6)} / 주의선 ${fmt(caution12)}.
+현재 현금 ${fmt(cash)} 기준 런웨이 약 <strong>${runwayM}개월</strong>.<br>
+<span style="color:var(--ink3)">단, 정부과제 제외 시 월 비용 약 ${fmt(grossMonthly)}원으로 경고선·주의선 모두 현재 하회. 보조금 수주 연속성이 핵심 변수.</span>`;
+  }
+
+  // 매출/비용 차트
+  const quarters = ['Q1','Q2','Q3','Q4'];
+  const qs = quarters.map(q2 => q.revenue_2025?.[q2]||0).map(v=>v/10000);
+  const cs2 = quarters.map(q2 => q.cost_2025?.[q2]||0).map(v=>v/10000);
+  new Chart(document.getElementById('revChart'), {
+    type:'bar',
+    data:{labels:['25.1Q','25.2Q','25.3Q','25.4Q'],datasets:[
+      {label:'매출',data:qs,backgroundColor:'rgba(45,90,61,0.75)',borderRadius:3},
+      {label:'비용',data:cs2,backgroundColor:'rgba(139,58,42,0.65)',borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10},callback:v=>(v/10000).toFixed(0)+'억'},grid:{color:gc},min:0}}
+    }
+  });
+}
+
+function buildTriggers(d, f) {
+  const cash = f.cash || 0;
+  const m = d.mpes || {};
+  const grid = document.getElementById('triggerGrid');
+  const triggers = [];
+
+  if (cash > 0) {
+    const burn = f.monthly_burn || 0;
+    const runway = burn > 0 ? Math.round(cash/burn) : 99;
+    if (runway >= 12) triggers.push({type:'ok', title:'런웨이: 여유', desc:`현금 ${fmt(cash)}, 순유출 기준 런웨이 약 ${runway}개월.`});
+    else if (runway >= 6) triggers.push({type:'warn', title:'⚠ 런웨이 주의', desc:`현금 ${fmt(cash)}, 런웨이 ${runway}개월. IR 준비 시작 필요.`});
+    else triggers.push({type:'warn', title:'🚨 런웨이 경고', desc:`현금 ${fmt(cash)}, 런웨이 ${runway}개월. IR 즉시 진행 필요.`});
+  }
+
+  if (m.profitability?.grade === 'C') triggers.push({type:'warn', title:'⚠ 수익성 적자', desc:m.profitability?.reason||'영업손실 지속'});
+  if (m.stability?.grade === 'C') triggers.push({type:'warn', title:'⚠ 자본잠식', desc:m.stability?.reason||'자본잠식 진행 중'});
+  if (m.growth?.grade === 'A') triggers.push({type:'ok', title:'성장성 양호', desc:m.growth?.reason||'매출 성장 중'});
+  if (!triggers.length) triggers.push({type:'ok', title:'주요 이슈 없음', desc:'현재 특이 트리거 없음'});
+
+  grid.innerHTML = triggers.map(t => `<div class="tc t${t.type==='ok'?'ok':t.type==='info'?'i':'w'}"><div class="tt">${t.title}</div><div class="td2">${t.desc}</div></div>`).join('');
+}
+
+function buildMentors(topFields, mentors) {
+  const tabRow = document.getElementById('gpTabRow');
+  const panels = document.getElementById('gpPanels');
+  if (!topFields.length) { panels.innerHTML = '<div style="color:var(--ink3);font-size:13px;padding:1rem">추천 분야가 없습니다.</div>'; return; }
+
+  tabRow.innerHTML = topFields.map((f,i) => `<button class="gp-tab${i===0?' active':''}" onclick="showGpTab('gp${i}',this)">${f}</button>`).join('');
+
+  panels.innerHTML = topFields.map((field, fi) => {
+    const list = mentors[field] || [];
+    const cards = list.map((m,i) => `
+      <div class="mentor-card">
+        <div class="mc-rank">${i+1}</div>
+        <div class="mc-body">
+          <div class="mc-name">${m.name} <span class="mc-title">${m.title}</span></div>
+          <div class="mc-org">${m.org}</div>
+          <div class="mc-tags">${(m.fields||[]).slice(0,3).map(f=>`<span class="mt2">${f}</span>`).join('')}</div>
+          ${(m.countries||[]).length?`<div class="country-tags">${m.countries.map(c=>`<span class="country-tag">${c}</span>`).join('')}</div>`:''}
+          ${m.expertise?`<div class="mc-expertise">💼 ${m.expertise}</div>`:''}
+          ${m.match_reason?`<div class="mc-match">🎯 ${m.match_reason}</div>`:''}
+        </div>
+        <div class="mc-years">${m.years}년</div>
+      </div>`).join('');
+    return `<div id="gp${fi}" class="gp-panel${fi===0?' active':''}">
+      <div class="gp-reason">분야: <strong>${field}</strong></div>
+      <div class="mentor-list">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildPrograms(progs) {
+  const priorityColor = p => p==='P1'?'p1':p==='P2'?'p2':'p3';
+  document.getElementById('progList').innerHTML = progs.map(p => `
+    <div class="pi">
+      <div class="pr2 ${priorityColor(p.priority)}">${p.priority||'P3'}</div>
+      <div class="pb2"><div class="pn">${p.name}</div><div class="prs">${p.reason}</div></div>
+    </div>`).join('');
+}
+
+function buildActions(actions) {
+  document.getElementById('actionBox').innerHTML = actions.map((a,i) => `
+    <div class="action-item"><div class="action-num">${i+1}</div><div>${a}</div></div>`).join('');
+}
+
+function buildBiz(biz) {
+  const statusMap = {
+    '완료': 'p-dn', '진행중': 'p-do', '계획': 'p-pl', '이슈': 'p-is'
+  };
+  const statusEl = document.getElementById('bizStatus');
+  const gridEl = document.getElementById('bizGrid');
+  if (biz.current_status?.length) {
+    statusEl.innerHTML = (biz.current_status||[]).slice(0,6).map(s => `<span class="sp p-do">${s}</span>`).join('');
+  }
+  gridEl.innerHTML = `
+    <div class="si"><div class="sil">현재 진행 사항</div><div class="sic"><ul>${(biz.current_status||[]).map(s=>`<li>${s}</li>`).join('')}</ul></div></div>
+    <div class="si"><div class="sil">주요 리스크</div><div class="sic"><ul>${(biz.risks||[]).map(s=>`<li>${s}</li>`).join('')}</ul></div></div>
+    <div class="si"><div class="sil">타겟 국가/시장</div><div class="sic"><ul>${(biz.targets||[]).map(s=>`<li>${s}</li>`).join('')}</ul></div></div>
+  `;
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function showGpTab(id, btn) {
+  document.querySelectorAll('.gp-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.gp-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
