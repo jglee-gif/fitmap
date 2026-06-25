@@ -1,78 +1,82 @@
 # Fit Map — 포트폴리오 진단 시스템
 
-포트폴리오사 결산 자료(엑셀/PDF)를 업로드하면 AI가 자동으로
-MPES 등급 산출 · 밸류업 프로그램 매칭 · 그로스파트너스 멘토 추천을 해드립니다.
+포트폴리오사 결산 자료를 업로드하면 AI가 자동으로 진단합니다.
+
+## 기능
+
+1. **재무 경향성 분석** — 현금잔고 추이, 런웨이 예측 (3분기), 경고선/주의선
+2. **MPES 진단** — 유동성·성장성·안정성·수익성 4개 지표 + 경향성
+3. **밸류업 프로그램** — 그로스파트너스 멘토 매칭 + 우선순위 프로그램 추천
+4. **사업개발 연계** — 그로스브릿지 OI + 정부지원사업 연계
 
 ---
 
-## 시작하기 (3단계)
+## 배포 (GitHub + Vercel)
 
-### 1단계 — API 키 설정
+### 1단계 — GitHub 레포 생성
 
 ```bash
-cp .env.example .env
-# .env 파일 열고 sk-ant-... 키 입력
+git init
+git add .
+git commit -m "feat: Fit Map 초기 배포"
+git remote add origin https://github.com/YOUR_USERNAME/fitmap.git
+git push -u origin main
 ```
 
-### 2단계 — 서버 실행
+### 2단계 — Vercel 배포
 
-**Mac / Linux:**
-```bash
-chmod +x start.sh
-./start.sh
-```
+1. [vercel.com](https://vercel.com) 로그인 → **New Project**
+2. GitHub 레포 선택 (`fitmap`)
+3. **Environment Variables** 추가:
+   - Key: `ANTHROPIC_API_KEY`
+   - Value: `sk-ant-...` (Anthropic Console에서 발급)
+4. **Deploy** 클릭
 
-**Windows:**
-```
-start.bat 더블클릭
-```
+### 3단계 — Anthropic API 키 발급
 
-### 3단계 — 접속
-
-브라우저에서 **http://localhost:8000** 접속
+1. [console.anthropic.com](https://console.anthropic.com) 접속
+2. **API Keys** → **Create Key**
+3. 발급된 키를 Vercel 환경변수에 입력
 
 ---
 
-## 팀원 공유 방법
+## 로컬 실행
 
-같은 WiFi에 연결된 팀원들은 아래 주소로 접속 가능합니다:
-
+```bash
+npm install -g vercel
+npm install
+cp .env.example .env.local  # API 키 입력
+vercel dev
 ```
-http://[내 노트북 IP]:8000
-```
-
-내 IP 확인:
-- Mac: `ifconfig | grep "inet " | grep -v 127`
-- Windows: `ipconfig | findstr IPv4`
 
 ---
 
 ## 파일 구조
 
 ```
-fitmap-local/
-├── backend/
-│   └── main.py          ← FastAPI 서버 + Claude API + 멘토 매칭
-├── frontend/
-│   └── static/
-│       ├── index.html   ← 업로드 페이지 (기업 목록)
-│       └── report.html  ← 진단 리포트 페이지
+fitmap/
+├── api/
+│   ├── analyze.js     # 메인 분석 엔드포인트
+│   └── health.js      # 서버 상태 확인
+├── lib/
+│   ├── mentors.js     # 멘토 매칭 로직
+│   └── prompts.js     # AI 프롬프트 및 상수
+├── public/
+│   ├── index.html     # 업로드 페이지
+│   └── report.html    # 4탭 진단 리포트
 ├── data/
-│   └── mentors.csv      ← 그로스파트너스 177명 멘토 데이터
-├── requirements.txt
-├── start.sh             ← Mac/Linux 시작 스크립트
-├── start.bat            ← Windows 시작 스크립트
-└── .env.example         ← API 키 설정 예시
+│   └── mentors.csv    # 그로스파트너스 177명
+├── package.json
+├── vercel.json
+└── README.md
 ```
 
 ---
 
-## 자주 수정하는 것
+## 업로드 파일 형식
 
-| 항목 | 파일 |
-|------|------|
-| 밸류업 프로그램 내용 | `backend/main.py` → `VALUEUP_PROGRAMS` |
-| AI 분석 프롬프트 | `backend/main.py` → `SYSTEM_PROMPT` |
-| 멘토 데이터 업데이트 | `data/mentors.csv` 교체 |
-| 업로드 UI | `frontend/static/index.html` |
-| 리포트 UI | `frontend/static/report.html` |
+| 파일 | 형식 | 내용 |
+|------|------|------|
+| 재무상태표 | PDF | 현금, 자본, 부채 등 |
+| 손익계산서 | PDF | 매출, 판관비, 영업손익 등 |
+| 성과 및 계획 | Excel (.xlsx) | 월별 현금흐름, 분기 실적/계획 |
