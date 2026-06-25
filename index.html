@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fit Map — 포트폴리오 진단</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --bg2: #ede9e0;
+    --bg3: #e0dbd0;
+    --ink: #1a1814;
+    --ink2: #4a4540;
+    --ink3: #9a9188;
+    --accent: #2d5a3d;
+    --accent-l: #e8f0ea;
+    --warn: #8b3a2a;
+    --warn-l: #f5ebe8;
+    --amber: #7a5a1a;
+    --amber-l: #faf3e0;
+    --border: rgba(26,24,20,.1);
+    --r: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+  /* ── 헤더 ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0 2.5rem; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display: flex; align-items: baseline; gap: 8px; }
+  .logo-main { font-family: 'Noto Serif KR', serif; font-size: 20px; font-weight: 700; }
+  .logo-sub { font-size: 12px; color: var(--ink3); letter-spacing: .05em; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--accent-l); }
+  .status-text { font-size: 12px; color: var(--ink3); }
+
+  /* ── 메인 ── */
+  main { max-width: 680px; margin: 0 auto; padding: 4rem 1.5rem 6rem; }
+  .page-title { font-family: 'Noto Serif KR', serif; font-size: 32px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+  .page-sub { font-size: 15px; color: var(--ink2); line-height: 1.75; margin-bottom: 2.5rem; }
+
+  /* ── 업로드 박스 ── */
+  .upload-box {
+    border: 1.5px dashed var(--bg3);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: white;
+    position: relative;
+  }
+  .upload-box:hover, .upload-box.drag {
+    border-color: var(--accent);
+    background: var(--accent-l);
+  }
+  .upload-icon {
+    width: 56px; height: 56px;
+    background: var(--bg); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; font-size: 26px;
+  }
+  .upload-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .upload-desc { font-size: 13px; color: var(--ink3); margin-bottom: 20px; line-height: 1.6; }
+  .upload-btn {
+    display: inline-block; padding: 10px 24px;
+    background: var(--ink); color: white;
+    border-radius: 999px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; font-family: 'Pretendard', sans-serif;
+    transition: opacity .15s;
+  }
+  .upload-btn:hover { opacity: .8; }
+  #fileInput { display: none; }
+
+  /* ── 기업 목록 ── */
+  .list-header { display: flex; align-items: center; justify-content: space-between; margin: 2.5rem 0 1rem; }
+  .list-title { font-size: 13px; font-weight: 600; color: var(--ink2); letter-spacing: .04em; }
+  .list-count { font-size: 12px; color: var(--ink3); }
+
+  .company-list { display: flex; flex-direction: column; gap: 10px; }
+  .company-card {
+    background: white; border-radius: var(--r);
+    border: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer; transition: box-shadow .15s, border-color .15s;
+  }
+  .company-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); border-color: var(--bg3); }
+  .company-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--bg); display: flex; align-items: center;
+    justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .company-info { flex: 1; min-width: 0; }
+  .company-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .company-meta { font-size: 12px; color: var(--ink3); }
+  .company-grade {
+    display: flex; gap: 2px; flex-shrink: 0;
+    font-size: 15px; font-weight: 700; letter-spacing: 2px;
+  }
+  .g-A { color: var(--accent); }
+  .g-B { color: var(--amber); }
+  .g-C { color: var(--warn); }
+  .company-arrow { color: var(--ink3); font-size: 14px; flex-shrink: 0; }
+
+  /* ── 로딩 ── */
+  .loading-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(245,243,238,.88); backdrop-filter: blur(8px);
+    z-index: 200;
+    flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  }
+  .loading-overlay.active { display: flex; }
+  .spinner {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 2px solid var(--bg3);
+    border-top-color: var(--accent);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-family: 'Noto Serif KR', serif; font-size: 20px; }
+  .loading-step { font-size: 13px; color: var(--ink3); }
+
+  /* ── 빈 상태 ── */
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--ink3); font-size: 14px; line-height: 1.8;
+  }
+
+  /* ── 에러 ── */
+  .error-toast {
+    display: none; position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    background: var(--warn); color: white;
+    padding: 12px 20px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    z-index: 300; max-width: 90vw; text-align: center;
+  }
+  .error-toast.show { display: block; animation: fadeUp .3s ease; }
+  @keyframes fadeUp { from { opacity:0; transform: translateX(-50%) translateY(10px); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-main">Fit Map</span>
+    <span class="logo-sub">Portfolio Diagnosis</span>
+  </div>
+  <div class="header-right">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-text" id="statusText">서버 확인 중...</span>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-title">결산 자료를 올리면<br>자동으로 진단합니다</h1>
+  <p class="page-sub">
+    엑셀 결산 자료 또는 IR자료(PDF)를 업로드하면<br>
+    MPES 등급 · 밸류업 프로그램 · 그로스파트너스 멘토를 자동 매칭합니다.
+  </p>
+
+  <!-- 업로드 박스 -->
+  <div class="upload-box" id="dropZone">
+    <div class="upload-icon">📊</div>
+    <div class="upload-title">파일을 드래그하거나 클릭해서 업로드</div>
+    <div class="upload-desc">결산자료 (.xlsx) 또는 IR자료·사업계획서 (.pdf)<br>파일 1개씩 업로드</div>
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">파일 선택</button>
+    <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf">
+  </div>
+
+  <!-- 진단 이력 -->
+  <div class="list-header">
+    <span class="list-title">진단 이력</span>
+    <span class="list-count" id="listCount">0건</span>
+  </div>
+  <div class="company-list" id="companyList">
+    <div class="empty-state">아직 진단한 기업이 없어요.<br>위에서 파일을 업로드해 첫 진단을 시작하세요.</div>
+  </div>
+</main>
+
+<!-- 로딩 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-title">분석 중...</div>
+  <div class="loading-step" id="loadingStep">파일을 읽고 있습니다</div>
+</div>
+
+<!-- 에러 토스트 -->
+<div class="error-toast" id="errorToast"></div>
+
+<script>
+const API = '/api';
+const steps = ['파일을 읽고 있습니다', 'AI가 재무 데이터를 분석합니다', 'MPES 등급을 계산합니다', '밸류업 프로그램을 매칭합니다', '그로스파트너스 멘토를 연결합니다'];
+let stepTimer, history = JSON.parse(localStorage.getItem('fitmap_history') || '[]');
+
+// 서버 상태 확인
+async function checkServer() {
+  try {
+    const r = await fetch(API + '/health');
+    const d = await r.json();
+    document.getElementById('statusDot').style.background = '#2d5a3d';
+    document.getElementById('statusText').textContent = `서버 정상 · 멘토 ${d.mentors}명`;
+  } catch {
+    document.getElementById('statusDot').style.background = '#8b3a2a';
+    document.getElementById('statusText').textContent = '서버 연결 안됨';
+  }
+}
+checkServer();
+setInterval(checkServer, 30000);
+
+// 드래그앤드롭
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); const f = e.dataTransfer.files[0]; if (f) upload(f); });
+document.getElementById('fileInput').addEventListener('change', e => { if (e.target.files[0]) upload(e.target.files[0]); });
+
+function showError(msg) {
+  const t = document.getElementById('errorToast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+async function upload(file) {
+  if (!file.name.match(/\.(xlsx|xls|pdf)$/i)) { showError('엑셀(.xlsx) 또는 PDF 파일만 업로드 가능합니다.'); return; }
+
+  document.getElementById('loadingOverlay').classList.add('active');
+  let idx = 0;
+  document.getElementById('loadingStep').textContent = steps[0];
+  stepTimer = setInterval(() => { idx = (idx+1) % steps.length; document.getElementById('loadingStep').textContent = steps[idx]; }, 2500);
+
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(API + '/analyze', { method: 'POST', body: fd });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.detail || '서버 오류'); }
+    const data = await res.json();
+
+    // 이력 저장
+    const entry = { ...data, _filename: file.name, _analyzed_at: new Date().toISOString() };
+    history.unshift(entry);
+    if (history.length > 50) history = history.slice(0, 50);
+    localStorage.setItem('fitmap_history', JSON.stringify(history));
+
+    renderList();
+
+    // 결과 페이지로 이동 (리포트 HTML)
+    sessionStorage.setItem('fitmap_result', JSON.stringify(data));
+    window.location.href = '/static/report.html';
+
+  } catch (e) {
+    showError('분석 실패: ' + e.message);
+  } finally {
+    clearInterval(stepTimer);
+    document.getElementById('loadingOverlay').classList.remove('active');
+    document.getElementById('fileInput').value = '';
+  }
+}
+
+function gradeSpan(g) {
+  const cls = g === 'A' ? 'g-A' : g === 'B' ? 'g-B' : 'g-C';
+  return `<span class="${cls}">${g}</span>`;
+}
+
+function renderList() {
+  const list = document.getElementById('companyList');
+  document.getElementById('listCount').textContent = history.length + '건';
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-state">아직 진단한 기업이 없어요.<br>위에서 파일을 업로드해 첫 진단을 시작하세요.</div>';
+    return;
+  }
+  list.innerHTML = history.map((d, i) => {
+    const overall = d.mpes?.overall || '----';
+    const grades = overall.split('').map(gradeSpan).join('');
+    const date = d._analyzed_at ? new Date(d._analyzed_at).toLocaleDateString('ko-KR', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    return `<div class="company-card" onclick="openReport(${i})">
+      <div class="company-icon">🏢</div>
+      <div class="company-info">
+        <div class="company-name">${d.company || '(기업명 미확인)'}</div>
+        <div class="company-meta">${date} · ${d._filename || ''}</div>
+      </div>
+      <div class="company-grade">${grades}</div>
+      <div class="company-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+
+function openReport(idx) {
+  sessionStorage.setItem('fitmap_result', JSON.stringify(history[idx]));
+  window.location.href = '/static/report.html';
+}
+
+renderList();
+</script>
+</body>
+</html>
