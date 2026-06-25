@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fit Map 종합 진단 리포트 — 주식회사 피트</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f9fa;color:#1a1a1a;min-height:100vh;padding:2rem}
+.wrap{max-width:960px;margin:0 auto;background:#fff;border-radius:16px;padding:2rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.co-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid #eee}
+.co-name{font-size:20px;font-weight:600}.co-sub{font-size:13px;color:#888;margin-top:2px}.co-date{font-size:12px;color:#aaa}
+.tab-row{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:1px solid #eee}
+.tab{font-size:13px;font-weight:500;padding:10px 18px;cursor:pointer;color:#888;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sl{font-size:11px;font-weight:600;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;margin-bottom:10px}
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+.mc{background:#f5f5f5;border-radius:10px;padding:14px}
+.ml{font-size:11px;color:#888;margin-bottom:5px}.mv{font-size:22px;font-weight:600}.ms{font-size:11px;color:#aaa;margin-top:2px}.mch{font-size:12px;margin-top:4px;font-weight:500}
+.up{color:#2d6a4f}.dn{color:#c0392b}
+.cw{background:#fff;border:1px solid #eee;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.ct{font-size:14px;font-weight:600;margin-bottom:3px}.cs{font-size:12px;color:#aaa;margin-bottom:12px}
+.leg{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:#888}
+.ld{width:10px;height:10px;border-radius:2px}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.tc{border-radius:12px;padding:14px;border:1px solid}
+.tw{background:#fff5f5;border-color:#f5c6c6}.tok{background:#f0faf4;border-color:#a8d5b5}.ti{background:#fffbf0;border-color:#f5e0a0}
+.tt{font-size:13px;font-weight:600;margin-bottom:4px}
+.tw .tt{color:#c0392b}.tok .tt{color:#2d6a4f}.ti .tt{color:#856404}
+.td2{font-size:12px;line-height:1.6}
+.tw .td2{color:#c0392b}.tok .td2{color:#2d6a4f}.ti .td2{color:#856404}
+.mt{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+.mt th{font-size:12px;font-weight:600;color:#888;padding:8px 12px;border-bottom:1px solid #eee;text-align:left;background:#fafafa}
+.mt td{font-size:13px;padding:10px 12px;border-bottom:1px solid #f0f0f0;color:#1a1a1a}
+.gr{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:700}
+.gA{background:#d4edda;color:#155724}.gB{background:#fff3cd;color:#856404}.gC{background:#f8d7da;color:#721c24}
+.ob{display:inline-flex;gap:3px;font-size:16px;font-weight:700;letter-spacing:2px}
+.pl{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+.pi{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border:1px solid #eee;border-radius:10px}
+.pr2{width:24px;height:24px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#888;flex-shrink:0}
+.pb2{flex:1}.pn{font-size:13px;font-weight:600}.prs{font-size:12px;color:#888;margin-top:2px;line-height:1.5}
+.pbg{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;flex-shrink:0}
+.bu{background:#f8d7da;color:#721c24}.br{background:#fff3cd;color:#856404}.bn{background:#d4edda;color:#155724}
+.dv{height:1px;background:#f0f0f0;margin:1.5rem 0}
+.sc{background:#fff;border:1px solid #eee;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.st{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.si{background:#f8f9fa;border-radius:10px;padding:12px 14px}
+.sil{font-size:11px;color:#888;margin-bottom:6px;font-weight:600}
+.sic{font-size:12px;color:#333;line-height:1.7}
+.sic li{list-style:none;margin-bottom:2px}
+.sic li::before{content:"· ";color:#aaa}
+.sr2{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.sp{font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid}
+.p-do{background:#e8f4fd;color:#1a6496;border-color:#a8d1f0}
+.p-pl{background:#fff3cd;color:#856404;border-color:#f5e0a0}
+.p-is{background:#f8d7da;color:#721c24;border-color:#f5c6c6}
+.p-dn{background:#d4edda;color:#155724;border-color:#a8d5b5}
+.pst{font-size:13px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px}
+.ptb{font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px}
+.tgb{background:#ede7f6;color:#4527a0}.tgg{background:#e8f5e9;color:#1b5e20}
+.pc{background:#fff;border:1px solid #eee;border-radius:12px;padding:1rem 1.25rem;margin-bottom:10px}
+.pct{display:flex;align-items:flex-start;gap:10px}
+.ppri{width:22px;height:22px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#888;flex-shrink:0;margin-top:2px}
+.pcb{flex:1}
+.pcn{font-size:13px;font-weight:600;margin-bottom:2px}
+.pco{font-size:11px;color:#aaa;margin-bottom:6px}
+.prb{background:#f8f9fa;border-radius:8px;padding:8px 12px;font-size:12px;color:#333;line-height:1.65;margin-bottom:6px}
+.prb .wl{font-size:10px;font-weight:600;color:#aaa;margin-bottom:3px}
+.ptags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.ptag{font-size:10px;padding:2px 7px;border-radius:6px;background:#f0f0f0;color:#666;border:1px solid #e0e0e0}
+.plink{font-size:11px;color:#1a6496;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
+.plink:hover{text-decoration:underline}
+.an{background:#f8f9fa;border-radius:8px;padding:10px 14px;font-size:12px;color:#888;line-height:1.6;margin-top:1rem;border-left:3px solid #ddd}
+.an strong{color:#555}
+
+  .gp-header{background:#f8f9fa;border:1px solid #e8e8e8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+  .gp-title-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .gp-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#1a1a1a;color:#fff;flex-shrink:0}
+  .gp-title{font-size:15px;font-weight:600}
+  .gp-sub{font-size:12px;color:#aaa}
+  .gp-tab-row{display:flex;gap:6px;margin-bottom:1rem}
+  .gp-tab{font-size:12px;font-weight:500;padding:7px 14px;border-radius:999px;border:1px solid #e0e0e0;background:#fff;cursor:pointer;color:#888;font-family:inherit;transition:all .15s}
+  .gp-tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+  .gp-panel{display:none}.gp-panel.active{display:block}
+  .gp-reason{font-size:12px;color:#666;background:#fff;border:1px solid #eee;border-radius:8px;padding:10px 14px;margin-bottom:12px;line-height:1.65}
+  .mentor-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+  .mentor-card{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fff;border:1px solid #eee;border-radius:10px}
+  .mc-rank{width:22px;height:22px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#888;flex-shrink:0}
+  .mc-body{flex:1}
+  .mc-name{font-size:13px;font-weight:600;margin-bottom:2px}
+  .mc-title{font-size:11px;font-weight:400;color:#aaa}
+  .mc-org{font-size:11px;color:#888;margin-bottom:5px}
+  .mc-tags{display:flex;gap:4px;flex-wrap:wrap}
+  .mt2{font-size:10px;padding:2px 7px;border-radius:5px;background:#f0f0f0;color:#666}
+  .mc-years{font-size:11px;color:#aaa;white-space:nowrap;flex-shrink:0}
+  .pr2.p1{background:#1a1a1a;color:#fff;font-size:11px;font-weight:700}
+  .pr2.p2{background:#555;color:#fff;font-size:11px;font-weight:700}
+  .pr2.p3{background:#e0e0e0;color:#666;font-size:11px;font-weight:700}
+
+  .mc-expertise{font-size:11px;color:#666;margin-top:6px;line-height:1.5;padding:4px 8px;background:#f5f5f5;border-radius:5px}
+  .mc-match{font-size:11px;color:#1a6496;margin-top:4px;line-height:1.5;padding:4px 8px;background:#e8f4fd;border-radius:5px}
+
+  /* 그로스브릿지 공고 상태 */
+  .gb-card { background:#fff; border:1px solid #eee; border-radius:12px; padding:1rem 1.25rem; margin-bottom:10px; }
+  .gb-card-top { display:flex; align-items:flex-start; gap:10px; margin-bottom:8px; }
+  .gb-num { width:22px; height:22px; border-radius:50%; background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:#888; flex-shrink:0; margin-top:2px; }
+  .gb-body { flex:1; }
+  .gb-name { font-size:13px; font-weight:600; margin-bottom:2px; }
+  .gb-org { font-size:11px; color:#aaa; margin-bottom:6px; }
+  .gb-reason-box { background:#f8f9fa; border-radius:8px; padding:8px 12px; font-size:12px; color:#333; line-height:1.65; margin-bottom:6px; }
+  .gb-reason-box .wl { font-size:10px; font-weight:600; color:#aaa; margin-bottom:3px; }
+  .gb-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+  .gb-tag { font-size:10px; padding:2px 7px; border-radius:5px; background:#f0f0f0; color:#666; }
+  .gb-status-row { display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
+  .status-open { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:#d4edda; color:#155724; }
+  .status-open::before { content:"●"; font-size:8px; }
+  .status-closed { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; background:#f0f0f0; color:#666; }
+  .status-closed::before { content:"○"; font-size:8px; }
+  .status-unknown { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; background:#fff3cd; color:#856404; }
+  .status-unknown::before { content:"?"; font-size:10px; font-weight:700; }
+  .gb-deadline { font-size:11px; color:#888; }
+  .gb-contact-tip { font-size:11px; color:#1a6496; background:#e8f4fd; border-radius:6px; padding:5px 10px; line-height:1.5; }
+  .gb-link { font-size:11px; color:#1a6496; text-decoration:none; }
+  .gb-link:hover { text-decoration:underline; }
+  .gb-upload-note { background:#fff3cd; border:1px solid #f5e0a0; border-radius:10px; padding:10px 14px; font-size:12px; color:#856404; line-height:1.6; margin-bottom:1rem; display:flex; align-items:flex-start; gap:8px; }
+
+  /* 정부지원사업 우선순위 */
+  .gov-card { background:#fff; border:1px solid #eee; border-radius:12px; padding:1rem 1.25rem; margin-bottom:10px; }
+  .gov-card-top { display:flex; align-items:flex-start; gap:10px; }
+  .gov-pri { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; }
+  .gov-pri.p1 { background:#1a1a1a; color:#fff; }
+  .gov-pri.p2 { background:#555; color:#fff; }
+  .gov-pri.p3 { background:#e0e0e0; color:#666; }
+  .gov-body { flex:1; }
+  .gov-name { font-size:13px; font-weight:600; margin-bottom:2px; }
+  .gov-org { font-size:11px; color:#aaa; margin-bottom:6px; }
+  .gov-match-reason { font-size:12px; color:#333; background:#f8f9fa; border-radius:8px; padding:7px 12px; line-height:1.65; margin-bottom:6px; }
+  .gov-match-reason .wl { font-size:10px; font-weight:600; color:#aaa; margin-bottom:3px; }
+  .gov-tags { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
+  .gov-tag { font-size:10px; padding:2px 7px; border-radius:5px; background:#f0f0f0; color:#666; }
+  .gov-link { font-size:11px; color:#1a6496; text-decoration:none; }
+  .gov-link:hover { text-decoration:underline; }
+
+  .gov-status-row { display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .gov-status-open { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:#d4edda; color:#155724; }
+  .gov-status-open::before { content:"●"; font-size:8px; }
+  .gov-status-closed { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; background:#f0f0f0; color:#666; }
+  .gov-status-closed::before { content:"○"; font-size:8px; }
+  .gov-deadline { font-size:11px; color:#888; }
+  .gov-prep-tip { font-size:11px; color:#856404; background:#fff3cd; border-radius:6px; padding:5px 10px; line-height:1.55; margin-top:5px; }
+
+  .support-box { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:8px 0 6px; }
+  .support-item { background:#f8f9fa; border-radius:8px; padding:8px 10px; }
+  .support-item-label { font-size:10px; font-weight:600; color:#aaa; margin-bottom:3px; letter-spacing:.5px; }
+  .support-item-value { font-size:12px; font-weight:600; color:#1a1a1a; line-height:1.4; }
+  .support-item-value.money { color:#155724; }
+  .support-detail { font-size:11px; color:#555; line-height:1.65; margin:5px 0; }
+  .support-detail li { list-style:none; padding-left:0; margin-bottom:2px; }
+  .support-detail li::before { content:"✓  "; color:#888; font-size:10px; }
+
+  .country-tags { display:flex; gap:5px; flex-wrap:wrap; margin:5px 0; }
+  .country-tag { font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px; background:#e8f4fd; color:#1a6496; border:1px solid #a8d1f0; }
+  .country-tag.special { background:#fff3cd; color:#856404; border-color:#f5e0a0; }
+  .mc-country-reason { font-size:11px; color:#555; margin-top:3px; line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="co-header">
+    <div><div class="co-name">주식회사 피트</div><div class="co-sub">Fit Map 종합 진단 리포트 · 2024~2026.1Q</div></div>
+    <div class="co-date">분석일: 2026.04.23</div>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('fin',this)">재무 경향성</button>
+    <button class="tab" onclick="showTab('mpes',this)">MPES 진단</button>
+    <button class="tab" onclick="showTab('prog',this)">밸류업 프로그램</button>
+    <button class="tab" onclick="showTab('biz',this)">사업개발 연계</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <div id="tab-fin" class="tab-panel active">
+    <div class="sl">핵심 지표 요약</div>
+    <div class="mg">
+      <div class="mc"><div class="ml">현금잔고 (2026.1Q)</div><div class="mv">14.1억</div><div class="mch dn">▼ 전년말 대비 △1.3억</div></div>
+      <div class="mc"><div class="ml">런웨이 (현재 추세)</div><div class="mv">~31개월</div><div class="ms">월 유출 △4,460만 기준</div></div>
+      <div class="mc"><div class="ml">매출 성장 (연간)</div><div class="mv">+188%</div><div class="ms">2024→2025</div><div class="mch up">▲ 6,343만→1.83억</div></div>
+      <div class="mc"><div class="ml">당기순손실</div><div class="mv">△1.15억</div><div class="ms">2026 1분기</div><div class="mch up">▲ 손실 축소 중</div></div>
+    </div>
+    <div class="cw">
+      <div class="ct">현금잔고 추이 및 런웨이 예측</div>
+      <div class="cs">단위: 만원 · 실선: 실적 / 점선: 26.2Q~26.4Q 예측 / 임계선: 실제 순유출(정부과제 포함) 기준</div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:#2980b9"></div>현금잔고 (실적)</div>
+        <div class="li"><div class="ld" style="background:#27ae60;opacity:.8"></div>예측 — 계획 달성 시</div>
+        <div class="li"><div class="ld" style="background:#e67e22;opacity:.8"></div>예측 — 현재 추세 지속 시</div>
+        <div class="li"><div class="ld" style="background:#e74c3c"></div>경고선 (6개월치)</div>
+        <div class="li"><div class="ld" style="background:#f39c12"></div>주의선 (12개월치)</div>
+      </div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="cashChart"></canvas></div>
+    </div>
+    <div class="cw">
+      <div class="ct">분기별 매출 vs 비용 추이</div>
+      <div class="cs">단위: 만원 · 2025년 분기 실적 + 2026년 계획</div>
+      <div class="leg">
+        <div class="li"><div class="ld" style="background:#1abc9c"></div>매출</div>
+        <div class="li"><div class="ld" style="background:#e67e22"></div>비용</div>
+      </div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="revChart"></canvas></div>
+    </div>
+    <div class="sl">트리거 감지</div>
+    <div class="tg">
+      <div class="tc tok"><div class="tt">런웨이: 여유 (순유출 기준)</div><div class="td2">현금 1.41억, 순유출 기준 경고선(0.19억)·주의선(0.39억) 상회. 현재 추세 유지 시 런웨이 약 44개월.</div></div>
+      <div class="tc ti"><div class="tt">⚠ 정부과제 제외 시 임계선 하회</div><div class="td2">보조금 제외 순수 비용(월 4,150만) 기준 경고선 2.49억·주의선 4.98억으로 현재 이미 하회. 보조금 수주 연속성이 핵심 변수.</div></div>
+      <div class="tc tw"><div class="tt">⚠ 결손금 누적 경향</div><div class="td2">△3.4억→△5.0억→△6.1억→△8.1억. 매년 1억 이상 누적 증가 중.</div></div>
+      <div class="tc tw"><div class="tt">⚠ 수익성 3개년 연속 C</div><div class="td2">국고보조금 제외 시 실질 손실 심각. 보조금 감소 시 런웨이 재계산 필요.</div></div>
+      <div class="tc ti"><div class="tt">주의: 2026년 매출 계획 달성</div><div class="td2">연간 목표 15억 (전년 +720%). 1Q 실적 2,862만으로 목표 대비 낮음.</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div id="tab-mpes" class="tab-panel">
+    <div class="sl">MPES 경향성 분석</div>
+    <table class="mt">
+      <thead><tr><th>지표</th><th>2024년</th><th>2025년</th><th>2026.1Q</th><th>경향</th><th>주요 수치 변화</th></tr></thead>
+      <tbody>
+        <tr><td><strong>유동성</strong><br><small style="color:#aaa">Runway</small></td><td><span class="gr gC">C</span></td><td><span class="gr gA">A</span></td><td><span class="gr gA">A</span></td><td><span class="up">↗ 개선</span></td><td style="font-size:12px;color:#888">현금 7천만→15.4억→14.1억<br>투자유치 후 개선, 소진 진행 중</td></tr>
+        <tr><td><strong>성장성</strong><br><small style="color:#aaa">매출성장률</small></td><td><span class="gr gB">B</span></td><td><span class="gr gA">A</span></td><td><span class="gr gC">C</span></td><td style="color:#856404">↕ 변동</td><td style="font-size:12px;color:#888">6,343만→1.83억(+188%)→2,862만(1Q)<br>연간 강하나 분기 변동성 큼</td></tr>
+        <tr><td><strong>안정성</strong><br><small style="color:#aaa">자본잠식률</small></td><td><span class="gr gC">C</span></td><td><span class="gr gB">B</span></td><td><span class="gr gB">B</span></td><td><span class="up">↗ 개선</span></td><td style="font-size:12px;color:#888">자본 △4.9억→3.99억→4.04억<br>투자로 일부 회복, 결손금 누적</td></tr>
+        <tr><td><strong>수익성</strong><br><small style="color:#aaa">영업이익</small></td><td><span class="gr gC">C</span></td><td><span class="gr gC">C</span></td><td><span class="gr gC">C</span></td><td class="dn">→ 지속 적자</td><td style="font-size:12px;color:#888">△3.4억→△4.5억→△2.15억(1Q)<br>국고보조금 의존도 높음</td></tr>
+        <tr style="background:#fafafa"><td><strong>종합 등급</strong></td>
+          <td><div class="ob"><span style="color:#721c24">C</span><span style="color:#856404">B</span><span style="color:#721c24">C</span><span style="color:#721c24">C</span></div></td>
+          <td><div class="ob"><span style="color:#155724">A</span><span style="color:#155724">A</span><span style="color:#856404">B</span><span style="color:#721c24">C</span></div></td>
+          <td><div class="ob"><span style="color:#155724">A</span><span style="color:#721c24">C</span><span style="color:#856404">B</span><span style="color:#721c24">C</span></div></td>
+          <td colspan="2" style="font-size:12px;color:#888">투자유치로 전반 개선. 수익성 3개년 연속 C. 분기 성장성 변동 주의.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TAB 3 -->
+  <div id="tab-prog" class="tab-panel">
+
+    <!-- 그로스파트너스 필수 -->
+    <div class="gp-header">
+      <div class="gp-title-row">
+        <span class="gp-badge">필수</span>
+        <span class="gp-title">그로스파트너스 멘토 매칭</span>
+      </div>
+      <div class="gp-sub">성과 및 계획 기반 3개 부문 · 각 부문 TOP 5 추천</div>
+    </div>
+
+    <!-- 부문 탭 -->
+    <div class="gp-tab-row">
+      <button class="gp-tab active" onclick="showGpTab('ir',this)">투자유치(IR)</button>
+      <button class="gp-tab" onclick="showGpTab('tax',this)">세무/회계/재무</button>
+      <button class="gp-tab" onclick="showGpTab('global',this)">해외 진출</button>
+    </div>
+
+    <!-- IR 멘토 -->
+    <div id="gptab-ir" class="gp-panel active">
+      <div class="gp-reason">Adobe 측 투자 타진(300억 밸류) 및 후속 투자 준비 중. IR 자료 고도화와 투자자 네트워크 연결이 필요한 시점.</div>
+      <div class="mentor-list">
+        <div class="mentor-card">
+          <div class="mc-rank">1</div>
+          <div class="mc-body">
+            <div class="mc-name">강은하 <span class="mc-title">대표</span></div>
+            <div class="mc-org">새봄커뮤니케이션</div>
+            <div class="mc-tags"><span class="mt2">투자유치(IR)</span><span class="mt2">홍보마케팅</span></div>
+            <div class="mc-expertise">💼 22년 경력의 IR·홍보 전문가, 스타트업 투자유치 다수 지원</div>
+            <div class="mc-match">🎯 Adobe 300억 밸류 투자 타진 대비 IR 자료 고도화 및 글로벌 투자자 커뮤니케이션 전략 수립</div>
+          </div>
+          <div class="mc-years">22년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">2</div>
+          <div class="mc-body">
+            <div class="mc-name">김세환 <span class="mc-title">이사</span></div>
+            <div class="mc-org">킹고투자파트너스</div>
+            <div class="mc-tags"><span class="mt2">투자유치(IR)</span></div>
+            <div class="mc-expertise">💼 VC 심사역 출신, 스타트업 투자 구조 설계 전문</div>
+            <div class="mc-match">🎯 SaaS 기업 시리즈A 투자 유치 전략 및 밸류에이션 논리 구성 지원</div>
+          </div>
+          <div class="mc-years">15년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">3</div>
+          <div class="mc-body">
+            <div class="mc-name">양수연 <span class="mc-title">대표</span></div>
+            <div class="mc-org">레드포인트</div>
+            <div class="mc-tags"><span class="mt2">투자유치(IR)</span><span class="mt2">홍보마케팅</span></div>
+            <div class="mc-expertise">💼 레드포인트 대표, IR·홍보 복합 전문가</div>
+            <div class="mc-match">🎯 엔터프라이즈 B2B SaaS 투자자 대상 IR 피칭 전략 및 홍보 메시지 정렬</div>
+          </div>
+          <div class="mc-years">15년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">4</div>
+          <div class="mc-body">
+            <div class="mc-name">윤영준 <span class="mc-title">대표</span></div>
+            <div class="mc-org">코벤트 캐피탈 파트너스</div>
+            <div class="mc-tags"><span class="mt2">투자유치(IR)</span></div>
+            <div class="mc-expertise">💼 코벤트 캐피탈 운용, 투자 포트폴리오 관리 경험</div>
+            <div class="mc-match">🎯 후속 투자 라운드 구조 설계 및 기존 투자자(현대투자파트너스) 관계 관리 전략</div>
+          </div>
+          <div class="mc-years">15년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">5</div>
+          <div class="mc-body">
+            <div class="mc-name">김예진 <span class="mc-title">벤처파트너</span></div>
+            <div class="mc-org">Node 41.5 Ventures</div>
+            <div class="mc-tags"><span class="mt2">투자유치(IR)</span><span class="mt2">해외 진출</span></div>
+            <div class="mc-expertise">💼 글로벌 VC 벤처파트너, IR·해외진출 복합 경험</div>
+            <div class="mc-match">🎯 일본·싱가포르 진출과 연계한 현지 투자자 IR 전략 및 글로벌 라운드 준비</div>
+          </div>
+          <div class="mc-years">14년</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 세무 멘토 -->
+    <div id="gptab-tax" class="gp-panel">
+      <div class="gp-reason">국고보조금 의존 수익구조 탈피 전략, 투자금 소진 속도 관리, 신용보증기금 6억 보증 관련 재무구조 최적화 필요.</div>
+      <div class="mentor-list">
+        <div class="mentor-card">
+          <div class="mc-rank">1</div>
+          <div class="mc-body">
+            <div class="mc-name">김동규 <span class="mc-title">부지점장</span></div>
+            <div class="mc-org">신용보증기금 강남스타트업지점</div>
+            <div class="mc-tags"><span class="mt2">세무/회계/재무</span><span class="mt2">오픈이노베이션</span><span class="mt2">투자유치(IR)</span></div>
+            <div class="mc-expertise">💼 신용보증기금 20년 경력, 스타트업 보증·재무 전문</div>
+            <div class="mc-match">🎯 신한은행 6억 보증 이후 추가 보증 활용 전략 및 정책자금 연계 재무구조 최적화</div>
+          </div>
+          <div class="mc-years">20년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">2</div>
+          <div class="mc-body">
+            <div class="mc-name">안성진 <span class="mc-title">이사 공인회계사</span></div>
+            <div class="mc-org">삼영회계법인</div>
+            <div class="mc-tags"><span class="mt2">세무/회계/재무</span></div>
+            <div class="mc-expertise">💼 공인회계사, 스타트업 재무제표 작성·감사 전문</div>
+            <div class="mc-match">🎯 투자자 요청 재무 실사 대비 감사보고서 품질 향상 및 결손금 누적 관리 전략</div>
+          </div>
+          <div class="mc-years">16년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">3</div>
+          <div class="mc-body">
+            <div class="mc-name">김경아 <span class="mc-title">대표 세무사</span></div>
+            <div class="mc-org">택스 큐레이터</div>
+            <div class="mc-tags"><span class="mt2">세무/회계/재무</span><span class="mt2">유통/판로</span><span class="mt2">투자유치(IR)</span></div>
+            <div class="mc-expertise">💼 세무사·IR 복합 전문가, 스타트업 세금 구조 설계</div>
+            <div class="mc-match">🎯 국고보조금 세무 처리 최적화 및 수익구조 전환 시 세금 부담 절감 전략</div>
+          </div>
+          <div class="mc-years">8년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">4</div>
+          <div class="mc-body">
+            <div class="mc-name">황익훈 <span class="mc-title">팀장</span></div>
+            <div class="mc-org">크리에이티브 파트너스</div>
+            <div class="mc-tags"><span class="mt2">세무/회계/재무</span></div>
+            <div class="mc-expertise">💼 스타트업 특화 세무팀 운영, 창업 초기 재무 설계</div>
+            <div class="mc-match">🎯 인력 채용 확대에 따른 인건비 처리·4대보험 최적화 및 스톡옵션 설계 지원</div>
+          </div>
+          <div class="mc-years">6년</div>
+        </div>
+
+        <div class="mentor-card">
+          <div class="mc-rank">5</div>
+          <div class="mc-body">
+            <div class="mc-name">오준석 <span class="mc-title">본부장</span></div>
+            <div class="mc-org">삼도회계법인</div>
+            <div class="mc-tags"><span class="mt2">세무/회계/재무</span></div>
+            <div class="mc-expertise">💼 회계법인 본부장, 19년 회계·세무 실무 경험</div>
+            <div class="mc-match">🎯 Adobe 투자 유치 전 재무 실사 대비 재무제표 정비 및 자본 구조 개선 자문</div>
+          </div>
+          <div class="mc-years">19년</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 해외진출 멘토 -->
+    <div id="gptab-global" class="gp-panel">
+      <div class="gp-reason">일본 리셀러 2개사 계약, 싱가포르 BD 팀 구축 계획. 글로벌 계약구조·현지 영업 전략 전문가 연결 필요.</div>
+      <div class="mentor-list">
+        <div class="mentor-card"><div class="mc-rank">1</div><div class="mc-body"><div class="mc-name">허성욱 <span class="mc-title">대표</span></div><div class="mc-org">라이오니스(LIONICE)</div><div class="mc-tags"><span class="mt2">해외 진출</span><span class="mt2">B2B영업</span></div></div><div class="mc-years">23년</div></div>
+        <div class="mentor-card"><div class="mc-rank">2</div><div class="mc-body"><div class="mc-name">김윤경 <span class="mc-title">대표/Founder</span></div><div class="mc-org">UNI Platform</div><div class="mc-tags"><span class="mt2">해외 진출</span><span class="mt2">B2B영업</span></div></div><div class="mc-years">20년</div></div>
+        <div class="mentor-card"><div class="mc-rank">3</div><div class="mc-body"><div class="mc-name">윤종영 <span class="mc-title">대표</span></div><div class="mc-org">타이드인스티튜트</div><div class="mc-tags"><span class="mt2">해외 진출</span><span class="mt2">빅데이터/AI</span></div></div><div class="mc-years">20년</div></div>
+        <div class="mentor-card"><div class="mc-rank">4</div><div class="mc-body"><div class="mc-name">오상엽 <span class="mc-title">부장</span></div><div class="mc-org">토쿄키라보시파이낸셜그룹</div><div class="mc-tags"><span class="mt2">해외 진출</span><span class="mt2">홍보마케팅</span></div></div><div class="mc-years">18년</div></div>
+        <div class="mentor-card"><div class="mc-rank">5</div><div class="mc-body"><div class="mc-name">진형석 <span class="mc-title">차장</span></div><div class="mc-org">한국무역협회</div><div class="mc-tags"><span class="mt2">B2B영업</span><span class="mt2">법무/법률</span></div></div><div class="mc-years">17년</div></div>
+      </div>
+    </div>
+
+    <div class="dv"></div>
+
+    <!-- 밸류업 프로그램 우선순위 -->
+    <div class="sl">밸류업 프로그램 우선순위</div>
+    <div class="pl">
+      <div class="pi"><div class="pr2 p1">P1</div><div class="pb2"><div class="pn">Private IR — 후속투자 연계</div><div class="prs">런웨이 여유 있으나 수익성 개선 전 후속투자 선제 확보 필요. Adobe 투자 타진과 병행해 포트폴리오 다변화 권장</div></div></div>
+      <div class="pi"><div class="pr2 p1">P1</div><div class="pb2"><div class="pn">TIPS 졸업 지원 — 후속 R&D 연계</div><div class="prs">TIPS 사업화 수행 중. 협약 종료 전 후속 R&D 과제 준비 필요. AI 문서 뷰어 개발과 직결</div></div></div>
+      <div class="pi"><div class="pr2 p2">P2</div><div class="pb2"><div class="pn">데모데이 — IR 피칭 기회</div><div class="prs">Adobe 외 투자자 접점 확보. ICT/SaaS 세션 참가로 후속 투자자 풀 확대</div></div></div>
+      <div class="pi"><div class="pr2 p2">P2</div><div class="pb2"><div class="pn">후속투자자 연계 — VC DB 매칭</div><div class="prs">AI/SaaS 분야 투자 이력 있는 VC 매칭. 일본·싱가포르 진출 경험 있는 글로벌 VC 우선 연결</div></div></div>
+      <div class="pi"><div class="pr2 p3">P3</div><div class="pb2"><div class="pn">고민나눔소 — 엔터프라이즈 영업 전략</div><div class="prs">NH투자증권, 신한은행, 한국디자인진흥원 엔터프라이즈 계약 전환 B2B 영업 전략 세션</div></div></div>
+      <div class="pi"><div class="pr2 p3">P3</div><div class="pb2"><div class="pn">Global Express — 일본 시장 파트너 연결</div><div class="prs">라이오니스·사테라이토 리셀러 계약 이후 추가 파트너 발굴. 싱가포르 BD 진출 지원</div></div></div>
+    </div>
+  </div>
+
+  <!-- TAB 4 -->
+  <div id="tab-biz" class="tab-panel">
+    <div class="sl">사업개발 현황 요약</div>
+    <div class="sc">
+      <div class="st">주식회사 피트 — 피트페이퍼 (AI 문서 공유 SaaS)</div>
+      <div class="sr2">
+        <span class="sp p-dn">TIPS 선정 · 사업화 수행 중</span>
+        <span class="sp p-dn">Adobe 협력 체결</span>
+        <span class="sp p-do">일본 리셀러 계약 진행</span>
+        <span class="sp p-do">엔터프라이즈 계약 추진</span>
+        <span class="sp p-pl">Adobe 투자 타진 (300억 밸류)</span>
+        <span class="sp p-is">Adobe 일정 지연 리스크</span>
+      </div>
+      <div class="sg">
+        <div class="si"><div class="sil">제품 · 기술 현황</div><div class="sic"><ul><li>피트페이퍼 2.0 출시 예정 (팀 기능 + AI)</li><li>Adobe / Figma / PPT 상호 연동 포맷 RnD</li><li>AI 문서 뷰어 · 노션 플러그인 출시 계획</li><li>PCT 특허 출원 예정 (26년 1Q)</li></ul></div></div>
+        <div class="si"><div class="sil">영업 · 파트너십 현황</div><div class="sic"><ul><li>NH투자증권 HTS 도입 계약 예정</li><li>신한은행 · 한국디자인진흥원 도입 검토</li><li>Adobe 글로벌 공동 마케팅 예정</li><li>일본 리셀러 2개사 (라이오니스, 사테라이토)</li></ul></div></div>
+        <div class="si"><div class="sil">인력 현황</div><div class="sic"><ul><li>현재 2명 (대표 포함) — 퇴사 2명 발생</li><li>26년 채용: 개발 2명 + BD 1명</li><li>글로벌 BD 세일즈 팀 구축 예정</li></ul></div></div>
+        <div class="si"><div class="sil">주요 이슈 · 리스크</div><div class="sic"><ul><li>인력 공백: 개발/운영 부담 증가</li><li>Adobe 협의 지연으로 일정 불확실</li><li>국고보조금 의존 수익구조 탈피 필요</li><li>엔터프라이즈 매출 계획 달성 불확실</li></ul></div></div>
+      </div>
+    </div>
+
+    <div class="dv"></div>
+
+    <!-- 그로스브릿지 -->
+    <div class="pst">그로스브릿지 오픈 이노베이션 <span class="ptb tgb">혁신의숲 · 마크앤컴퍼니</span></div>
+
+    <div class="gb-upload-note">
+      <span style="font-size:16px;flex-shrink:0">🔗</span>
+      <span>현재 공개된 공고 기준으로 피트와의 매칭도를 분석했습니다. 모집 기간 상세는 각 공고 링크에서 확인하세요. <strong>API 연동 후</strong>에는 지원 가능 여부가 실시간으로 자동 표시됩니다.</span>
+    </div>
+
+    <!-- 공고 1: 삼성화재 -->
+    <div class="gb-card">
+      <div class="gb-card-top">
+        <div class="gb-num">1</div>
+        <div class="gb-body">
+          <div class="gb-name">2026 함께하는 성장 WITH 삼성화재</div>
+          <div class="gb-org">삼성화재 · 탭엔젤파트너스 주관</div>
+          <div class="gb-reason-box"><div class="wl">매칭 근거</div>NH투자증권·신한은행 도입 협의 중인 금융 엔터프라이즈 영업과 직접 연결. 삼성화재 PoC 레퍼런스 확보 시 금융권 신뢰도 대폭 향상. AI 문서 뷰어의 보험·금융 서류 처리 솔루션 적용 가능성 높음.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 유형</div><div class="support-item-value">PoC 연계</div></div>
+            <div class="support-item"><div class="support-item-label">지원금 규모</div><div class="support-item-value money">최대 5,000만원</div></div>
+            <div class="support-item"><div class="support-item-label">기간</div><div class="support-item-value">3~6개월</div></div>
+          </div>
+          <ul class="support-detail"><li>삼성화재 내부 실증(PoC) 기회 제공</li><li>선정 시 투자 검토 연계</li><li>금융권 레퍼런스 공식 확보</li></ul>
+          <div class="gb-tags"><span class="gb-tag">금융 PoC</span><span class="gb-tag">보험·금융</span><span class="gb-tag">엔터프라이즈</span></div>
+          <div class="gb-status-row">
+            <span class="status-unknown">모집 기간 확인 필요</span>
+          </div>
+          <div class="gb-contact-tip" style="margin-top:6px">💡 모집이 종료됐더라도 탭엔젤파트너스와의 직접 접촉으로 다음 기수 사전 등록 가능. 금융권 PoC 이력 확보 차원에서 문의 권장.</div>
+          <a href="https://www.innoforest.co.kr/growth-bridge/OI00000599/2026-%ED%95%A8%EA%BB%98%ED%95%98%EB%8A%94-%EC%84%B1%EC%9E%A5-WITH-%EC%82%BC%EC%84%B1%ED%99%94%EC%9E%AC" target="_blank" class="gb-link" style="display:inline-block;margin-top:6px">↗ 공고 상세 확인</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 공고 2: KDB NextONE -->
+    <div class="gb-card">
+      <div class="gb-card-top">
+        <div class="gb-num">2</div>
+        <div class="gb-body">
+          <div class="gb-name">2026년 상반기 KDB NextONE 12기</div>
+          <div class="gb-org">한국산업은행 주관</div>
+          <div class="gb-reason-box"><div class="wl">매칭 근거</div>산업은행 액셀러레이팅 프로그램으로 금융권 네트워크 직접 연결. 문서 디지털화·AI 뷰어 솔루션의 은행 내부 도입 PoC로 연결 가능. 신용보증기금 6억 보증 이후 산업은행 정책금융 연계까지 확장 가능.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 유형</div><div class="support-item-value">PoC + 액셀러레이팅</div></div>
+            <div class="support-item"><div class="support-item-label">지원금 규모</div><div class="support-item-value money">최대 1,000만원</div></div>
+            <div class="support-item"><div class="support-item-label">기간</div><div class="support-item-value">6개월</div></div>
+          </div>
+          <ul class="support-detail"><li>산업은행 계열사 내부 PoC 기회</li><li>KDB 네트워크 통한 후속 투자 검토</li><li>정책금융(대출·보증) 연계 우대</li></ul>
+          <div class="gb-tags"><span class="gb-tag">산업은행</span><span class="gb-tag">금융 PoC</span><span class="gb-tag">정책금융 연계</span></div>
+          <div class="gb-status-row">
+            <span class="status-unknown">모집 기간 확인 필요</span>
+          </div>
+          <div class="gb-contact-tip" style="margin-top:6px">💡 모집이 종료된 경우 KDB NextONE 담당자 직접 문의로 하반기 13기 사전 안내 요청 가능.</div>
+          <a href="https://www.innoforest.co.kr/growth-bridge/OI00000554/2026%EB%85%84-%EC%83%81%EB%B0%98%EA%B8%B0-KDB-NextONE-12%EA%B8%B0-%EB%AA%A8%EC%A7%91-%EA%B3%B5%EA%B3%A0" target="_blank" class="gb-link" style="display:inline-block;margin-top:6px">↗ 공고 상세 확인</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 공고 3: KB스타터스 -->
+    <div class="gb-card">
+      <div class="gb-card-top">
+        <div class="gb-num">3</div>
+        <div class="gb-body">
+          <div class="gb-name">2026 KB금융그룹 'KB스타터스' 신규 모집</div>
+          <div class="gb-org">KB금융그룹 주관 · 국내/글로벌 트랙</div>
+          <div class="gb-reason-box"><div class="wl">매칭 근거</div>KB금융 글로벌 트랙은 일본·싱가포르 진출 계획과 직접 연계. KB증권 등 계열사 HTS 도입 PoC로도 확장 가능. Adobe 글로벌 공동 마케팅과 시너지를 낼 수 있는 글로벌 파트너십 채널.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 유형</div><div class="support-item-value">PoC + 글로벌</div></div>
+            <div class="support-item"><div class="support-item-label">지원금 규모</div><div class="support-item-value money">최대 3,000만원</div></div>
+            <div class="support-item"><div class="support-item-label">기간</div><div class="support-item-value">6개월</div></div>
+          </div>
+          <ul class="support-detail"><li>KB금융 계열사 PoC 기회 (증권·은행)</li><li>글로벌 트랙: 해외 진출 네트워크 지원</li><li>우수 기업 KB 투자 검토 연계</li></ul>
+          <div class="gb-tags"><span class="gb-tag">KB금융</span><span class="gb-tag">글로벌 트랙</span><span class="gb-tag">증권 PoC</span></div>
+          <div class="gb-status-row">
+            <span class="status-unknown">모집 기간 확인 필요</span>
+          </div>
+          <div class="gb-contact-tip" style="margin-top:6px">💡 모집이 종료된 경우 KB금융그룹 스타터스 Alumni 네트워크 합류로 다음 기수 연결 가능.</div>
+          <a href="https://www.innoforest.co.kr/growth-bridge/OI00000574/%EA%B7%B8%EB%A1%9C%EC%8A%A4%EB%B8%8C%EB%A6%BF%EC%A7%80-%EC%9E%90%EB%8F%99%ED%99%94-%ED%85%8C%EC%8A%A4%ED%8A%B8" target="_blank" class="gb-link" style="display:inline-block;margin-top:6px">↗ 공고 상세 확인</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 공고 4: 서울창업허브 -->
+    <div class="gb-card">
+      <div class="gb-card-top">
+        <div class="gb-num">4</div>
+        <div class="gb-body">
+          <div class="gb-name">2026 서울창업허브 중견기업 오픈이노베이션</div>
+          <div class="gb-org">서울경제진흥원(SBA) 주관</div>
+          <div class="gb-reason-box"><div class="wl">매칭 근거</div>SBA 연단위 공급 계약 완료 기업으로 이미 레퍼런스 보유. 중견기업 OI를 통해 문서·디자인 분야 추가 중견기업 PoC 확보 가능. 한국디자인진흥원 도입 협의와 병행 시 공공 레퍼런스 다변화.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 유형</div><div class="support-item-value">PoC + 사업화</div></div>
+            <div class="support-item"><div class="support-item-label">지원금 규모</div><div class="support-item-value money">1,000만원</div></div>
+            <div class="support-item"><div class="support-item-label">기간</div><div class="support-item-value">4~6개월</div></div>
+          </div>
+          <ul class="support-detail"><li>중견기업 기술협력(PoC) 기회 제공</li><li>SBA 사업화 지원금 1,000만원 별도 지급 (서울 소재 기업)</li><li>공공 조달 레퍼런스 확보 가능</li></ul>
+          <div class="gb-tags"><span class="gb-tag">SBA</span><span class="gb-tag">중견기업 PoC</span><span class="gb-tag">공공 레퍼런스</span></div>
+          <div class="gb-status-row">
+            <span class="status-unknown">모집 기간 확인 필요</span>
+          </div>
+          <div class="gb-contact-tip" style="margin-top:6px">💡 SBA와 기존 계약 이력이 있어 담당자 연결 채널 확보 용이. 모집 종료 시에도 직접 추천 경로 활용 가능.</div>
+          <a href="https://www.innoforest.co.kr/growth-bridge/OI00000614/2026-%EC%84%9C%EC%9A%B8%EC%B0%BD%EC%97%85%ED%97%88%EB%B8%8C-%EC%A4%91%EA%B2%AC%EA%B8%B0%EC%97%85-%EC%98%A4%ED%94%88%EC%9D%B4%EB%85%B8%EB%B2%A0%EC%9D%B4%EC%85%98" target="_blank" class="gb-link" style="display:inline-block;margin-top:6px">↗ 공고 상세 확인</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 공고 5: 삼성전자 C-Lab -->
+    <div class="gb-card">
+      <div class="gb-card-top">
+        <div class="gb-num">5</div>
+        <div class="gb-body">
+          <div class="gb-name">삼성전자 2026 C-Lab Outside 스타트업 모집</div>
+          <div class="gb-org">삼성전자 주관</div>
+          <div class="gb-reason-box"><div class="wl">매칭 근거</div>Adobe·Figma 연동 문서 포맷 개발 중으로 삼성전자 협업 시 갤럭시 생태계 연동 가능성 있음. AI 문서 뷰어의 온디바이스 HW 최적화 R&D와 삼성 C-Lab 기술 방향성 일치. 글로벌 삼성 네트워크를 통한 일본·아시아 진출 채널 확보.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 유형</div><div class="support-item-value">기술협력 PoC</div></div>
+            <div class="support-item"><div class="support-item-label">지원금 규모</div><div class="support-item-value money">최대 5,000만원</div></div>
+            <div class="support-item"><div class="support-item-label">기간</div><div class="support-item-value">6~12개월</div></div>
+          </div>
+          <ul class="support-detail"><li>삼성전자 내부 기술협력·공동개발 기회</li><li>글로벌 삼성 네트워크 활용 (일본·동남아)</li><li>우수 기업 삼성 투자 및 양산 연계 검토</li></ul>
+          <div class="gb-tags"><span class="gb-tag">삼성 협업</span><span class="gb-tag">AI·SW</span><span class="gb-tag">글로벌 네트워크</span></div>
+          <div class="gb-status-row">
+            <span class="status-unknown">모집 기간 확인 필요</span>
+          </div>
+          <div class="gb-contact-tip" style="margin-top:6px">💡 C-Lab은 연간 정기 모집. 모집 종료 시에도 다음 기수 준비 차원에서 사전 접촉 권장. Adobe 협력 레퍼런스가 강점으로 작용.</div>
+          <a href="https://www.innoforest.co.kr/growth-bridge/OI00000443/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90-2026-CLab-Outside-%EC%8A%A4%ED%83%80%ED%8A%B8%EC%97%85-%EB%AA%A8%EC%A7%91" target="_blank" class="gb-link" style="display:inline-block;margin-top:6px">↗ 공고 상세 확인</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="dv"></div>
+
+    <!-- 정부지원사업 -->
+    <div class="pst">정부 지원사업 연계 추천 <span class="ptb tgg">bizinfo · 중소벤처24 API</span></div>
+
+    <!-- P1-1: TIPS 비R&D 연계 -->
+    <div class="gov-card">
+      <div class="gov-card-top">
+        <div class="gov-pri p1">P1</div>
+        <div class="gov-body">
+          <div class="gov-name">2026년 TIPS 비R&D 연계사업 — 창업사업화</div>
+          <div class="gov-org">중소벤처기업부 / TIPS 운영사</div>
+          <div class="gov-match-reason"><div class="wl">우선순위 근거 및 추천 사유</div>TIPS R&D 완료 기업 대상으로 사업화 자금 최대 1.5억원 지원. 피트페이퍼 2.0 출시 및 AI 뷰어 상용화 직전 단계에 필요한 비용을 직접 지원. 2025년까지 TIPS R&D 협약 완료 기업만 신청 가능하므로 자격 요건 즉시 확인 필요.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 규모</div><div class="support-item-value money">최대 1.5억원</div></div>
+            <div class="support-item"><div class="support-item-label">정부/기업 비율</div><div class="support-item-value">정부 70% / 자부담 30%</div></div>
+            <div class="support-item"><div class="support-item-label">협약 기간</div><div class="support-item-value">10개월 이내</div></div>
+          </div>
+          <ul class="support-detail"><li>제품·서비스 초기 검증(PoC) 수행 비용</li><li>고객 반응 조사, 품질 테스트, 기능 검증 비용</li><li>해외마케팅 연계 시 합산 최대 3억원</li></ul>
+          <div class="gov-tags"><span class="gov-tag">최대 1.5억</span><span class="gov-tag">사업화 비용</span><span class="gov-tag">TIPS 졸업 연계</span></div>
+          <div class="gov-status-row">
+            <span class="gov-status-open">접수 중</span>
+            <span class="gov-deadline">상시 접수 · 연간 650개사 선정</span>
+          </div>
+          <a class="gov-link" href="https://bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000119754" target="_blank" style="display:inline-block;margin-top:5px">↗ 공고 상세 확인</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- P1-2: 청년일자리도약장려금 -->
+    <div class="gov-card">
+      <div class="gov-card-top">
+        <div class="gov-pri p1">P1</div>
+        <div class="gov-body">
+          <div class="gov-name">2026 청년일자리도약장려금</div>
+          <div class="gov-org">고용노동부 / 고용24</div>
+          <div class="gov-match-reason"><div class="wl">우선순위 근거 및 추천 사유</div>퇴사 2명으로 현재 대표 포함 2명뿐. 개발 2명+BD 1명 채용 계획 중. 만 15~34세 취업애로청년 정규직 채용 시 1인당 최대 720만원(수도권) 지원. 채용 후 3개월 이내 신청 필수이므로 채용 시작 전 사전 숙지 필요.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 규모</div><div class="support-item-value money">1인당 최대 720만원</div></div>
+            <div class="support-item"><div class="support-item-label">지원 방식</div><div class="support-item-value">월 60만원 × 12개월</div></div>
+            <div class="support-item"><div class="support-item-label">신청 기한</div><div class="support-item-value">채용 후 3개월 이내</div></div>
+          </div>
+          <ul class="support-detail"><li>개발 2명+BD 1명 채용 시 최대 2,160만원 절감</li><li>기업+청년 동시 지원금 지급 (2026.1월 입사부터)</li><li>우선지원대상기업(중소·스타트업) 해당 시 신청 가능</li></ul>
+          <div class="gov-tags"><span class="gov-tag">1인당 최대 720만원</span><span class="gov-tag">정규직 채용</span><span class="gov-tag">만 15~34세</span></div>
+          <div class="gov-status-row">
+            <span class="gov-status-open">접수 중</span>
+            <span class="gov-deadline">2025.12.29~2026.12.31 · 고용24에서 신청</span>
+          </div>
+          <a class="gov-link" href="https://www.work24.go.kr" target="_blank" style="display:inline-block;margin-top:5px">↗ 고용24 신청 바로가기</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2-1: KOTRA 해외진출 -->
+    <div class="gov-card">
+      <div class="gov-card-top">
+        <div class="gov-pri p2">P2</div>
+        <div class="gov-body">
+          <div class="gov-name">2026 KOTRA 수출지원기반활용사업 (글로벌 지원 바우처)</div>
+          <div class="gov-org">KOTRA / 산업통상자원부</div>
+          <div class="gov-match-reason"><div class="wl">우선순위 근거 및 추천 사유</div>일본 리셀러 2개사 계약 진행 중, 싱가포르 BD 구축 계획. 바우처로 홍보·광고·전시회·통번역·해외규격인증 등 14개 수출지원 서비스 활용 가능. 1억~2억원 규모 바우처로 글로벌 BD 확장 비용 절감.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 규모</div><div class="support-item-value money">바우처 1억~2억원</div></div>
+            <div class="support-item"><div class="support-item-label">지원 방식</div><div class="support-item-value">서비스 바우처 발급</div></div>
+            <div class="support-item"><div class="support-item-label">활용 분야</div><div class="support-item-value">14개 수출지원 서비스</div></div>
+          </div>
+          <ul class="support-detail"><li>홍보·광고 / 온·오프라인 전시회 참가비</li><li>통번역 / 해외규격인증 / 디자인 개발</li><li>KOTRA 해외무역관 현지 네트워크 활용</li></ul>
+          <div class="gov-tags"><span class="gov-tag">바우처 1~2억</span><span class="gov-tag">일본·싱가포르</span><span class="gov-tag">14개 서비스</span></div>
+          <div class="gov-status-row">
+            <span class="gov-status-closed">모집 마감</span>
+            <span class="gov-deadline">2026년 상반기 접수 종료</span>
+          </div>
+          <div class="gov-prep-tip">📋 하반기 2차 모집 준비 — 매년 상·하반기 2회 공고. 지금부터 수출계획서·회사소개서 정비 권장. KOTRA 중소혁신기업팀 02-3460-3237 사전 문의 가능.</div>
+          <a class="gov-link" href="https://www.bizinfo.go.kr/web/lay1/bbs/S1T122C128/AS/74/list.do" target="_blank" style="display:inline-block;margin-top:5px">↗ 기업마당 하반기 공고 모니터링</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2-2: SW 민관협력 OI -->
+    <div class="gov-card">
+      <div class="gov-card-top">
+        <div class="gov-pri p2">P2</div>
+        <div class="gov-body">
+          <div class="gov-name">2026 AX혁신기업 ICT전략융합 R&D 바우처</div>
+          <div class="gov-org">과학기술정보통신부</div>
+          <div class="gov-match-reason"><div class="wl">우선순위 근거 및 추천 사유</div>AI 문서 뷰어·Adobe 연동 포맷 R&D가 ICT 전략융합 과제 요건에 부합. 대기업 협력사와 공동 R&D 구조로 Adobe 의존 리스크 분산 효과. 과기부 R&D 바우처로 개발비 절감 + 기술 레퍼런스 동시 확보.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 규모</div><div class="support-item-value money">최대 1억4,000만원</div></div>
+            <div class="support-item"><div class="support-item-label">정부/기업 비율</div><div class="support-item-value">정부 75% / 자부담 25%</div></div>
+            <div class="support-item"><div class="support-item-label">수행 기간</div><div class="support-item-value">7개월</div></div>
+          </div>
+          <ul class="support-detail"><li>PoC·시제품 제작 등 기술검증 비용 지원</li><li>중견기업과 공동 R&D — Adobe·삼성 등 협력 연계 가능</li><li>선정 규모 24개사로 확대 (2026년 기준)</li></ul>
+          <div class="gov-tags"><span class="gov-tag">ICT R&D</span><span class="gov-tag">AI·SW</span><span class="gov-tag">바우처 지원</span></div>
+          <div class="gov-status-row">
+            <span class="gov-status-closed">모집 마감</span>
+            <span class="gov-deadline">2026.01.19~2026.02.10 접수 종료</span>
+          </div>
+          <div class="gov-prep-tip">📋 다음 공고 준비 — 매년 1~2월 신규 공고. 지금부터 기술개발 계획서 초안 및 협력기업(Adobe 등) 확인서 준비 권장.</div>
+          <a class="gov-link" href="https://www.bizinfo.go.kr/web/lay1/bbs/S1T122C128/AS/74/list.do" target="_blank" style="display:inline-block;margin-top:5px">↗ 기업마당 공고 모니터링</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- P3: PCT 특허 -->
+    <div class="gov-card">
+      <div class="gov-card-top">
+        <div class="gov-pri p3">P3</div>
+        <div class="gov-body">
+          <div class="gov-name">IP 바우처 — PCT 해외 출원 지원</div>
+          <div class="gov-org">특허청 / 한국발명진흥회</div>
+          <div class="gov-match-reason"><div class="wl">우선순위 근거 및 추천 사유</div>26년 1분기 PCT 특허 출원 예정. 해외 출원 비용 건당 수천만원으로 부담 큼. IP 바우처 활용 시 출원 비용의 최대 70% 지원 가능. 일본·싱가포르 사업화 전 IP 보호 선행 필요.</div>
+          <div class="support-box">
+            <div class="support-item"><div class="support-item-label">지원 규모</div><div class="support-item-value money">출원비 최대 70%</div></div>
+            <div class="support-item"><div class="support-item-label">지원 방식</div><div class="support-item-value">IP 바우처 발급</div></div>
+            <div class="support-item"><div class="support-item-label">신청</div><div class="support-item-value">상시 (연중)</div></div>
+          </div>
+          <ul class="support-detail"><li>PCT 국제 출원 비용 지원 (건당 수백~수천만원 절감)</li><li>해외 특허 번역·현지 대리인 비용 포함</li><li>일본·싱가포르 진출 전 IP 선점 — 리셀러 계약 보호</li></ul>
+          <div class="gov-tags"><span class="gov-tag">PCT 출원</span><span class="gov-tag">비용 최대 70%</span><span class="gov-tag">IP 보호</span></div>
+          <div class="gov-status-row">
+            <span class="gov-status-open">접수 중</span>
+            <span class="gov-deadline">2026.01.26~2026.12.31 · 상시 접수</span>
+          </div>
+          <a class="gov-link" href="https://www.bizinfo.go.kr/web/lay1/bbs/S1T122C128/AS/74/list.do" target="_blank" style="display:inline-block;margin-top:5px">↗ 기업마당 공고 확인</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="an">
+      <strong>접수 상태 기준 (2026.05.26 기준)</strong> &nbsp;
+      <span style="color:#155724;font-weight:600">● 접수 중</span> — 현재 신청 가능 &nbsp;|&nbsp;
+      <span style="color:#666;font-weight:600">○ 모집 마감</span> — 접수 종료, 하반기 재공고 시 즉시 신청 권장<br>
+      <span style="color:#888;font-size:11px">bizinfo.go.kr API 연동 시 접수 상태가 실시간 자동 업데이트됩니다. 그로스브릿지 API 연동은 내부 협의 진행 중.</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+function showGpTab(id, btn) {
+  document.querySelectorAll('.gp-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('gptab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+// ── 현금잔고 데이터 ──
+// 실적: 24.1Q~26.1Q
+const cashActual = [2549,1899,1194,7009,18000,17000,16000,15444,14107];
+
+// 계획 기반 예측 (엑셀 경영계획 기반 Cash-in/out)
+// 26.1Q 기초: 14,107만 / 계획 소진: -726만/월 → 분기 -2,178만
+// 26.2Q: 14,107 - 726 = 13,381 / 26.3Q: 12,883 / 26.4Q: 12,513
+const cashPlan = [null,null,null,null,null,null,null,null,14107,13381,12883,12513];
+
+// 추세 기반 예측 (최근 3분기 평균 소진속도 적용)
+// 25.2Q→25.3Q: -1000 / 25.3Q→25.4Q: -556 / 25.4Q→26.1Q: -1337 → 평균 -964만/분기
+const avgDecline = (1000 + 556 + 1337) / 3; // 약 964만
+const cashTrend = [null,null,null,null,null,null,null,null,
+  14107,
+  Math.round(14107 - avgDecline),
+  Math.round(14107 - avgDecline*2),
+  Math.round(14107 - avgDecline*3)
+];
+
+const cashLabels = ['24.1Q','24.2Q','24.3Q','24.4Q','25.1Q','25.2Q','25.3Q','25.4Q','26.1Q','26.2Q','26.3Q','26.4Q'];
+
+new Chart(document.getElementById('cashChart'),{
+  type:'line',
+  data:{
+    labels: cashLabels,
+    datasets:[
+      {
+        label:'현금잔고 (실적)',
+        data: cashActual.concat([null,null,null]),
+        borderColor:'#2980b9',
+        backgroundColor:'rgba(41,128,185,0.07)',
+        borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#2980b9',
+        fill:true, tension:0.3
+      },
+      {
+        label:'예측 — 계획 달성 시',
+        data: cashPlan,
+        borderColor:'#27ae60',
+        backgroundColor:'rgba(39,174,96,0.05)',
+        borderWidth:2, pointRadius:3, pointBackgroundColor:'#27ae60',
+        borderDash:[6,3], fill:false, tension:0.3
+      },
+      {
+        label:'예측 — 현재 추세 지속 시',
+        data: cashTrend,
+        borderColor:'#e67e22',
+        backgroundColor:'rgba(230,126,34,0.04)',
+        borderWidth:2, pointRadius:3, pointBackgroundColor:'#e67e22',
+        borderDash:[3,3], fill:false, tension:0.3
+      },
+      {
+        label:'경고선 (6개월치 순유출 · 1,926만)',
+        data: Array(12).fill(1926),
+        borderColor:'#e74c3c', borderWidth:1.5,
+        borderDash:[6,4], pointRadius:0, fill:false
+      },
+      {
+        label:'주의선 (12개월치 순유출 · 3,852만)',
+        data: Array(12).fill(3852),
+        borderColor:'#f39c12', borderWidth:1.5,
+        borderDash:[4,4], pointRadius:0, fill:false
+      }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        callbacks:{
+          label: ctx => {
+            if(ctx.raw==null) return null;
+            const v = ctx.raw;
+            const disp = v>=10000?(v/10000).toFixed(2)+'억':v.toLocaleString()+'만';
+            return ctx.dataset.label+': '+disp+'원';
+          }
+        }
+      }
+    },
+    scales:{
+      x:{
+        ticks:{font:{size:10},maxRotation:30},
+        grid:{color:'rgba(0,0,0,0.05)'}
+      },
+      y:{
+        ticks:{font:{size:10},callback:v=>v>=10000?(v/10000).toFixed(0)+'억':v+'만'},
+        grid:{color:'rgba(0,0,0,0.05)'},
+        min:0
+      }
+    }
+  }
+});
+new Chart(document.getElementById('revChart'),{
+  type:'bar',
+  data:{
+    labels:['25.1Q','25.2Q','25.3Q','25.4Q','26.1Q','26.2Q(계획)'],
+    datasets:[
+      {label:'매출',data:[4307,6056,3134,4767,2862,6632],backgroundColor:'rgba(26,188,156,0.75)',borderRadius:3},
+      {label:'비용',data:[14374,12541,12813,23511,24404,20000],backgroundColor:'rgba(230,126,34,0.65)',borderRadius:3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>(v/10000).toFixed(0)+'억'},min:0}}}
+});
+
+function showGpTab(id, btn) {
+  document.querySelectorAll('.gp-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.gp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('gptab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
