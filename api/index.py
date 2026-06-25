@@ -1,3 +1,12 @@
+@app.get("/api/health") # <-- 앞에 /api 추가
+async def health():
+    return {"status": "ok", "mentors": len(MENTORS)}
+
+@app.post("/api/analyze") # <-- 앞에 /api 추가
+async def analyze(file: UploadFile):
+    if not file.filename.endswith((".xlsx", ".xls", ".pdf")):
+        raise HTTPException(400, "엑셀(.xlsx) 또는 PDF 파일만 업로드 가능합니다.")
+
 import os, json, tempfile, base64
 from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.staticfiles import StaticFiles
