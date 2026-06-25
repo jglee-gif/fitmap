@@ -11,10 +11,6 @@ async def analyze(file: UploadFile):
     {
       "source": "/api/(.*)",
       "destination": "/api"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/public/$1"
     }
   ]
 }
